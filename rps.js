@@ -105,4 +105,4 @@ const game = (rounds = 1) => {
 }
 
 let rounds = 5;
-game(rounds);
+//game(rounds);
