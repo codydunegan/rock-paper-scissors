@@ -1,13 +1,5 @@
-
-const options = ["ROCK", "PAPER", "SCISSORS"];
-
-let playerScore = 0;
-let computerScore = 0;
-
 const randomInt = (max) => {
     let randomNumber = Math.floor(Math.random() * max);
-
-    //console.log(`Random number = ${randomNumber}`); 
     return randomNumber;
 }
 
@@ -17,9 +9,11 @@ const computerPlay = () => {
     return options[randomNumber];
 }
 
-const playRound = (playerSelection, computerSelection) => {
+const playRound = (playerSelection) => {
     let playerWon = false;
     let tieGame = false;
+
+    let computerSelection = computerPlay();
 
     switch(playerSelection) {
         case computerSelection:
@@ -44,65 +38,93 @@ const playRound = (playerSelection, computerSelection) => {
     }
 
     if (tieGame) {
-        console.log(`Tie Game! You both chose: ${playerSelection}`);
-        return;
+        addLog(`Tie Game! You both chose: ${playerSelection}`);
     }
-
-    if (playerWon) {
+    else if (playerWon) {
         playerScore++;
-        console.log(`You won! ${playerSelection} beats ${computerSelection}!`);
+        addLog(`You won! ${playerSelection} beats ${computerSelection}!`);
     }
     else {
         computerScore++;
-        console.log(`You lost! ${computerSelection} beats ${playerSelection}!`);
+        addLog(`You lost! ${computerSelection} beats ${playerSelection}!`);
     }
-    return;
+
+    updateUI();
+
+    if (playerScore >= winningScore || computerScore >= winningScore) {
+        determineWinner();
+    }
 }
 
-const getPlayerChoiceFromPrompt = () => {
-    let playerChoice = window.prompt("Choose: ROCK, PAPER, or SCISSORS", "ROCK");
-
-    if (playerChoice == null // cancel button
-        || playerChoice == '' // empty input
-        || !isNaN(playerChoice) // is a number
-        || !options.includes(playerChoice.toUpperCase()) // not in options array
-    ) {
-        alert("Invalid choice");
-        return getPlayerChoiceFromPrompt();
-    }
-
-    return playerChoice.toUpperCase();
-}
-
-const game = (rounds = 1) => {
-    console.log(`Let's play ${rounds} rounds of rock, paper, scissors!`);
-
-    for (let i = 1; i <= rounds; i++) {
-        console.log("");
-        console.log(`ROUND ${i}!`);
-
-        let playerSelection = getPlayerChoiceFromPrompt();
-        let computerSelection = computerPlay();
-
-        console.log(`Player chose '${playerSelection}' | Computer chose '${computerSelection}'`);
-
-        playRound(playerSelection, computerSelection);
-    }
-
-    console.log("");
-    console.log("");
-    console.log("FINAL SCORES");
-    console.log(`Player: ${playerScore} | Computer: ${computerScore}`);
+const determineWinner = () => {
+    rockButton.removeEventListener('click', buttonClick);
+    paperButton.removeEventListener('click', buttonClick);
+    scissorsButton.removeEventListener('click', buttonClick);
+    
+    let winMessage = "";
     if (playerScore == computerScore) {
-        console.log("TIE!");
+        winMessage = "TIE!";
     }
     else if (playerScore > computerScore) {
-        console.log("You WIN!");
+        winMessage = "You WIN!";
     }
     else {
-        console.log("Computer WINS!");
+        winMessage = "Computer WINS!";
     }
+
+    addLog(winMessage);
+
+    setTimeout(() => {
+        alert(winMessage);
+        resetScoresAndUI();
+    }, 10);
 }
 
-let rounds = 5;
-//game(rounds);
+const buttonClick = (event) => {
+    playRound(event.target.id.toUpperCase());
+}
+
+const resetScoresAndUI = () => {
+    playerScore = 0;
+    computerScore = 0;
+
+    updateUI();
+
+    outputConsole.innerText = "";
+    addLog("Player joined!");
+
+    rockButton.addEventListener('click', buttonClick);
+    paperButton.addEventListener('click', buttonClick);
+    scissorsButton.addEventListener('click', buttonClick);
+}
+
+const updateUI = () => {
+    playerScoreDiv.innerText = playerScore;
+    computerScoreDiv.innerText = computerScore;
+}
+
+const addLog = (message) => {
+    console.log(message);
+
+    let logItem = document.createElement("p");
+    logItem.innerText = message;
+
+    outputConsole.prepend(logItem);
+}
+
+const options = ["ROCK", "PAPER", "SCISSORS"];
+
+let winningScore = 5;
+let playerScore = 0;
+let computerScore = 0;
+
+const rockButton = document.querySelector('#rock');
+const paperButton = document.querySelector('#paper');
+const scissorsButton = document.querySelector('#scissors');
+
+const playerScoreDiv = document.querySelector("#player");
+const computerScoreDiv = document.querySelector("#computer");
+
+const outputConsole = document.querySelector("#output-console");
+
+resetScoresAndUI();
